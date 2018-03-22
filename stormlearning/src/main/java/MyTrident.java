@@ -24,7 +24,7 @@ import org.apache.storm.tuple.Values;
 public class MyTrident {
 
   public static void main(String[] args) throws InterruptedException {
-    FixedBatchSpout spout = new FixedBatchSpout(new Fields("setence"), 3,
+    FixedBatchSpout spout = new FixedBatchSpout(new Fields("sentences"), 3,
         new Values("the cow jump over the moon"),
         new Values("the man went to the store and bought some candy"),
         new Values("four score and seven years ago"),
