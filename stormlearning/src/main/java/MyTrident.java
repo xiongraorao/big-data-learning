@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2018.  Xiong Raorao. All rights reserved.
+ * Project Name: big-data-learning
+ * File Name: MyTrident.java
+ * Date: 18-3-22 下午7:26
+ * Author: Xiong Raorao
+ */
+
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.LocalDRPC;
