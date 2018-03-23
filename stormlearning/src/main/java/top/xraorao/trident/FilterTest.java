@@ -10,8 +10,13 @@ package top.xraorao.trident;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
+import org.apache.storm.spout.SpoutOutputCollector;
+import org.apache.storm.task.TopologyContext;
+import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.topology.base.BaseRichSpout;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.operation.BaseFilter;
 import org.apache.storm.trident.operation.BaseFunction;
@@ -31,21 +36,42 @@ public class FilterTest {
 
   public static void main(String[] args) throws InterruptedException {
     FixedBatchSpout spout = new FixedBatchSpout(new Fields("a", "b"),
-        1, new Values(1, 2), new Values(4, 1),
+        3, new Values(1, 2), new Values(4, 1),
         new Values(3, 0));
     spout.setCycle(false);
+
     TridentTopology topology = new TridentTopology();
-    topology.newStream("spout", spout)
-        .each(new Fields("a"), new MyFilter())
+    topology.newStream("spout", new NumberSpout())
         .each(new Fields("a", "b"), new PrintFilterBolt(), new Fields(""));
     Config config = new Config();
-    config.setNumAckers(1);
-    config.setDebug(false);
+    config.setMaxSpoutPending(3);
     LocalCluster cluster = new LocalCluster();
     cluster.submitTopology("filter test", config, topology.build());
-    Thread.sleep(5000);
-    cluster.shutdown();
 
+  }
+
+  static class NumberSpout extends BaseRichSpout {
+
+    SpoutOutputCollector collector;
+
+    @Override
+    public void open(Map map, TopologyContext topologyContext,
+        SpoutOutputCollector spoutOutputCollector) {
+      collector = spoutOutputCollector;
+    }
+
+    @Override
+    public void nextTuple() {
+      collector.emit(new Values(1, 2));
+      collector.emit(new Values(4, 1));
+      collector.emit(new Values(3, 0));
+    }
+
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+      outputFieldsDeclarer.declare(new Fields("a", "b"));
+
+    }
   }
 
   static class PrintFilterBolt extends BaseFunction {
